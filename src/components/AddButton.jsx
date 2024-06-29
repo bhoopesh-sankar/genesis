@@ -1,7 +1,11 @@
 import { setGlobalState } from '../store'
 import { BsPlusLg } from 'react-icons/bs'
+import { useEffect } from 'react';
 
 const AddButton = () => {
+  useEffect(() => {
+    document.title = "Farmer Home";
+  }, []);
   return (
     <div className="fixed right-10 bottom-10 flex space-x-2 justify-center">
       <button

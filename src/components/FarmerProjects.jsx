@@ -2,7 +2,11 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { truncate, daysRemaining } from '../store'
 
-const Projects = ({ projects }) => {
+const FarmerProjects = ({ projects }) => {
+
+  useEffect(() => {
+    document.title = "Farmer Home";
+  }, []);
   const [end, setEnd] = useState(4)
   const [count] = useState(4)
   const [collection, setCollection] = useState([])
@@ -17,7 +21,7 @@ const Projects = ({ projects }) => {
     <div className="flex flex-col px-6 mb-7">
       <div className="flex justify-center items-center flex-wrap">
         {collection.map((project, i) => (
-          <ProjectCard key={i} project={project} />
+          <FarmerProjectCard key={i} project={project} />
         ))}
       </div>
 
@@ -38,13 +42,13 @@ const Projects = ({ projects }) => {
   )
 }
 
-const ProjectCard = ({ project }) => {
+const FarmerProjectCard = ({ project }) => {
   const ZeroQuantity = project.quantity;
   const expired = new Date().getTime() > Number(project?.expiresAt + '000')
 
   return (
     <div id="projects" className="rounded-lg shadow-lg bg-white w-64 m-4" >
-      <Link to={'/projects/' + project.id}>
+      <Link to={'/farmer-projects/' + project.id}>
 
         <div className="p-4">
           <h5 style={{ fontWeight: 'bold', }}>Product: {truncate(project.prdname, 25, 0, 28)}</h5>
@@ -53,7 +57,7 @@ const ProjectCard = ({ project }) => {
         font-bold mt-1 mb-2 text-gray-700"
           >
             <small className="flex justify-start items-center">
-              <span> <h5 style={{ fontWeight: 'bold', }}>Price/Kg: {project.cost} MATIC</h5></span>
+              <span> <h5 style={{ fontWeight: 'bold', }}>Price/Kg: {project.cost} DETH</h5></span>
             </small>
           </div>
           <div
@@ -83,6 +87,6 @@ const ProjectCard = ({ project }) => {
 }
 
 export{
-  Projects,
-  ProjectCard,
+  FarmerProjects,
+  FarmerProjectCard,
 } 

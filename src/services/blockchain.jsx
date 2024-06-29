@@ -1,5 +1,5 @@
-import abi from '../abis/src/contracts/Genesis.sol/Genesis.json'
-import address from '../abis/contractAddress.json'
+import abi from '../abis/src/contracts/Agroblockchain.sol/Agroblockchain.json'
+import address from '../abis/Agroblockchain.json'
 import { getGlobalState, setGlobalState } from '../store'
 import { ethers } from 'ethers'
 
@@ -43,7 +43,7 @@ const isWallectConnected = async () => {
   }
 }
 
-const getEtheriumContract = async () => {
+const getEthereumContract = async () => {
   const connectedAccount = getGlobalState('connectedAccount')
 
   if (connectedAccount) {
@@ -58,45 +58,20 @@ const getEtheriumContract = async () => {
 }
 
 const createProject = async ({
-  title,
+  prdname,
+  quantity,
   description,
   imageURL,
   cost,
-  expiresAt,
+  loc,
+  expiresAt
 }) => {
   try {
     if (!ethereum) return alert('Please install Metamask')
 
-    const contract = await getEtheriumContract()
+    const contract = await getEthereumContract()
     cost = ethers.utils.parseEther(cost)
-    await contract.createProject(title, description, imageURL, cost, expiresAt)
-  } catch (error) {
-    reportError(error)
-  }
-}
-
-const updateProject = async ({
-  id,
-  title,
-  description,
-  imageURL,
-  expiresAt,
-}) => {
-  try {
-    if (!ethereum) return alert('Please install Metamask')
-
-    const contract = await getEtheriumContract()
-    await contract.updateProject(id, title, description, imageURL, expiresAt)
-  } catch (error) {
-    reportError(error)
-  }
-}
-
-const deleteProject = async (id) => {
-  try {
-    if (!ethereum) return alert('Please install Metamask')
-    const contract = await getEtheriumContract()
-    await contract.deleteProject(id)
+    await contract.CreateOrders(prdname, quantity,description, imageURL, cost, loc, expiresAt)
   } catch (error) {
     reportError(error)
   }
@@ -106,12 +81,12 @@ const loadProjects = async () => {
   try {
     if (!ethereum) return alert('Please install Metamask')
 
-    const contract = await getEtheriumContract()
-    const projects = await contract.getProjects()
+    const contract = await getEthereumContract()
+    const projects = await contract.getOrders()
     const stats = await contract.stats()
-
     setGlobalState('stats', structureStats(stats))
     setGlobalState('projects', structuredProjects(projects))
+    console.log(projects)
   } catch (error) {
     reportError(error)
   }
@@ -120,8 +95,8 @@ const loadProjects = async () => {
 const loadProject = async (id) => {
   try {
     if (!ethereum) return alert('Please install Metamask')
-    const contract = await getEtheriumContract()
-    const project = await contract.getProject(id)
+    const contract = await getEthereumContract()
+    const project = await contract.getOrder(id)
 
     setGlobalState('project', structuredProjects([project])[0])
   } catch (error) {
@@ -130,17 +105,48 @@ const loadProject = async (id) => {
   }
 }
 
-const backProject = async (id, amount) => {
+const ReviewAndRating = async (rev, rat) => {
+  try {
+    if (!ethereum) return alert('Please install Metamask')
+    const contract = await getEthereumContract()
+    const suggestions = await contract.getReview(rev, rat)
+    console.log(suggestions);
+    alert("Rating stored");
+  } catch (error) {
+    alert(JSON.stringify(error.message))
+    reportError(error)
+  }
+}
+const getReviewList = async () => {
+  try {
+    if (!ethereum) return alert('Please install Metamask')
+    const contract = await getEthereumContract()
+    const reviews = await contract.getReviewlist();
+    setGlobalState('reviews', structuredReviews(reviews));
+    // alert("after setGlobal")
+  } catch (error) {
+    alert(JSON.stringify(error.message))
+    reportError(error)
+  }
+}
+
+const structuredReviews = (reviews) =>
+reviews
+    .map((review) => ({
+      review: review.review.toLowerCase(),
+      rating: review.rating.toNumber(),
+    }))
+    .reverse()
+
+
+const backProject = async (id, quantity,email, address, amount) => {
   try {
     if (!ethereum) return alert('Please install Metamask')
     const connectedAccount = getGlobalState('connectedAccount')
-    const contract = await getEtheriumContract()
-    amount = ethers.utils.parseEther(amount)
-
-    await contract.backProject(id, {
-      from: connectedAccount,
-      value: amount._hex,
-    })
+    const contract = await getEthereumContract()
+    const price = ethers.utils.parseUnits(amount, "ether")
+    let transaction = await contract.purchaseOrder(id, quantity,email, address,  { value: price });
+    await transaction.wait();
   } catch (error) {
     reportError(error)
   }
@@ -149,8 +155,8 @@ const backProject = async (id, amount) => {
 const getBackers = async (id) => {
   try {
     if (!ethereum) return alert('Please install Metamask')
-    const contract = await getEtheriumContract()
-    let backers = await contract.getBackers(id)
+    const contract = await getEthereumContract()
+    let backers = await contract.getBuyer(id)
 
     setGlobalState('backers', structuredBackers(backers))
   } catch (error) {
@@ -162,7 +168,7 @@ const payoutProject = async (id) => {
   try {
     if (!ethereum) return alert('Please install Metamask')
     const connectedAccount = getGlobalState('connectedAccount')
-    const contract = await getEtheriumContract()
+    const contract = await getEthereumContract()
 
     await contract.payOutProject(id, {
       from: connectedAccount,
@@ -172,47 +178,40 @@ const payoutProject = async (id) => {
   }
 }
 
+
 const structuredBackers = (backers) =>
   backers
     .map((backer) => ({
       owner: backer.owner.toLowerCase(),
-      refunded: backer.refunded,
+      boughtquantity: backer.boughtquantity.toNumber(),
+      buyerloc: backer.buyerloc.toLowerCase(),
+      buyeremail: backer.buyeremail,
+      price: parseInt(backer.price._hex) / 10 ** 18,
       timestamp: new Date(backer.timestamp.toNumber() * 1000).toJSON(),
-      contribution: parseInt(backer.contribution._hex) / 10 ** 18,
     }))
     .reverse()
+
+
 
 const structuredProjects = (projects) =>
   projects
     .map((project) => ({
       id: project.id.toNumber(),
       owner: project.owner.toLowerCase(),
-      title: project.title,
-      description: project.description,
+      prdname: project.prdname,
+      quantity: project.quantity.toNumber(),
+      description: project.description.toLowerCase(),
+      imageURL: project.imageURL,
+      cost: parseInt(project.cost._hex) / 10 ** 18,
+      loc: project.loc,
+      delivery: project.delivery,
       timestamp: new Date(project.timestamp.toNumber()).getTime(),
       expiresAt: new Date(project.expiresAt.toNumber()).getTime(),
-      date: toDate(project.expiresAt.toNumber() * 1000),
-      imageURL: project.imageURL,
-      raised: parseInt(project.raised._hex) / 10 ** 18,
-      cost: parseInt(project.cost._hex) / 10 ** 18,
-      backers: project.backers.toNumber(),
-      status: project.status,
     }))
     .reverse()
 
-const toDate = (timestamp) => {
-  const date = new Date(timestamp)
-  const dd = date.getDate() > 9 ? date.getDate() : `0${date.getDate()}`
-  const mm =
-    date.getMonth() + 1 > 9 ? date.getMonth() + 1 : `0${date.getMonth() + 1}`
-  const yyyy = date.getFullYear()
-  return `${yyyy}-${mm}-${dd}`
-}
-
 const structureStats = (stats) => ({
-  totalProjects: stats.totalProjects.toNumber(),
-  totalBacking: stats.totalBacking.toNumber(),
-  totalDonations: parseInt(stats.totalDonations._hex) / 10 ** 18,
+  totalorders: stats.totalorders,
 })
 
 const reportError = (error) => {
@@ -224,11 +223,12 @@ export {
   connectWallet,
   isWallectConnected,
   createProject,
-  updateProject,
-  deleteProject,
   loadProjects,
   loadProject,
   backProject,
   getBackers,
   payoutProject,
+  ReviewAndRating,
+  structuredReviews,
+  getReviewList,
 }

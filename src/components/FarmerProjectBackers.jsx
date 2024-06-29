@@ -3,7 +3,7 @@ import Identicon from 'react-identicons'
 import Moment from 'react-moment'
 import { truncate } from '../store'
 
-const ProjectBackers = ({ backers }) => {
+const FarmerProjectBackers = ({ backers }) => {
   return (
     <div className="flex flex-col justify-center items-start md:w-2/3 px-6 mx-auto">
       <div
@@ -19,20 +19,6 @@ const ProjectBackers = ({ backers }) => {
                 px-6 py-4 text-left"
               >
                 Buyer
-              </th>
-              <th
-                scope="col"
-                className="text-sm font-medium
-                px-6 py-4 text-left"
-              >
-                Email
-              </th>
-              <th
-                scope="col"
-                className="text-sm font-medium
-                px-6 py-4 text-left"
-              >
-                Delivery Address
               </th>
               <th
                 scope="col"
@@ -89,26 +75,6 @@ const Backer = ({ backer }) => (
     >
       <small className="flex justify-start items-center space-x-1">
         <span className="text-gray-700 font-medium">
-          {backer.buyeremail}
-        </span>
-      </small>
-    </td>
-    <td
-      className="text-sm font-light
-                  px-6 py-4 whitespace-nowrap"
-    >
-      <small className="flex justify-start items-center space-x-1">
-        <span className="text-gray-700 font-medium">
-          {backer.buyerloc}
-        </span>
-      </small>
-    </td>
-    <td
-      className="text-sm font-light
-                  px-6 py-4 whitespace-nowrap"
-    >
-      <small className="flex justify-start items-center space-x-1">
-        <span className="text-gray-700 font-medium">
           {backer.boughtquantity} Kg
         </span>
       </small>
@@ -120,7 +86,7 @@ const Backer = ({ backer }) => (
       <small className="flex justify-start items-center space-x-1">
         <FaEthereum />
         <span className="text-gray-700 font-medium">
-          {backer.price} ETH
+          {backer.price} DETH
         </span>
       </small>
     </td>
@@ -133,4 +99,4 @@ const Backer = ({ backer }) => (
   </tr>
 )
 
-export default ProjectBackers
+export default FarmerProjectBackers

@@ -2,13 +2,15 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import BackProject from '../components/BackProject'
 import ProjectDetails from '../components/ProjectDetails'
+import FarmerProjectDetails from '../components/FarmerProjectDetails'
+import FarmerProjectBackers from '../components/FarmerProjectBackers'
 import { getBackers, loadProject,getReviewList } from '../services/blockchain'
 import { useGlobalState } from '../store'
 import ProjectBackers from '../components/ProjectBackers'
 import Review from '../components/ReviewAndRating'
 import { ReviewRating } from '../components/Reviews'
 
-const Project = () => {
+const ProjectFarmer = () => {
   const { id } = useParams()
   const [loaded, setLoaded] = useState(false)
   const [project] = useGlobalState('project')
@@ -23,10 +25,11 @@ const Project = () => {
   }, [])
   return loaded ? (
     <>
-      <ProjectDetails project={project} />
+      <FarmerProjectDetails project={project} />
       <BackProject project={project} />
-      <ProjectBackers backers={backers} />
-      <Review />
+      <FarmerProjectBackers backers={backers} />
+      {/* <Review /> */}
+      <h1 style={{ fontWeight: 'bold', fontSize: '200%', paddingLeft: '40%', }}>Reviews and Ratings</h1>
       <ReviewRating reviews={reviews} />
       
       
@@ -34,4 +37,4 @@ const Project = () => {
   ) : null
 }
 
-export default Project
+export default ProjectFarmer;

@@ -1,15 +1,22 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { FaTimes } from 'react-icons/fa'
 import { toast } from 'react-toastify'
 import { createProject } from '../services/blockchain'
 import { useGlobalState, setGlobalState } from '../store'
 
 const CreateProject = () => {
+
+  useEffect(() => {
+    document.title = "Farmer Home";
+  }, []);
+
   const [createModal] = useGlobalState('createModal')
-  const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
+  const [prdname, setPrdname] = useState('')
+  const [quantity, setquantity] = useState('')
+  const [description, setdescription] = useState('')
   const [cost, setCost] = useState('')
-  const [date, setDate] = useState('')
+  const [loc, setLoc] = useState('')
+  const [expiresAt, setExpiry] = useState('')
   const [imageURL, setImageURL] = useState('')
 
   const toTimestamp = (dateStr) => {
@@ -19,18 +26,20 @@ const CreateProject = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!title || !description || !cost || !date || !imageURL) return
+    if (!prdname || !quantity || !cost || !loc || !description || !expiresAt || !imageURL) return
 
     const params = {
-      title,
+      prdname,
+      quantity,
       description,
       cost,
-      expiresAt: toTimestamp(date),
+      loc,
+      expiresAt: toTimestamp(expiresAt),
       imageURL,
     }
 
     await createProject(params)
-    toast.success('Project created successfully, will reflect in 30sec.')
+    toast.success('Order created successfully, will reflect in 30sec.')
     onClose()
     window.location.reload()
   }
@@ -41,11 +50,12 @@ const CreateProject = () => {
   }
 
   const reset = () => {
-    setTitle('')
+    setPrdname('')
+    setquantity('')
     setCost('')
-    setDescription('')
-    setImageURL('')
-    setDate('')
+    setLoc('')
+    setDelivery('')
+    setExpiry('')
   }
 
   return (
@@ -60,7 +70,7 @@ const CreateProject = () => {
       >
         <form onSubmit={handleSubmit} className="flex flex-col">
           <div className="flex justify-between items-center">
-            <p className="font-semibold">Add Project</p>
+            <p className="font-semibold">Create Order</p>
             <button
               onClick={onClose}
               type="button"
@@ -70,32 +80,19 @@ const CreateProject = () => {
             </button>
           </div>
 
-          <div className="flex justify-center items-center mt-5">
-            <div className="rounded-xl overflow-hidden h-20 w-20">
-              <img
-                src={
-                  imageURL ||
-                  'https://media.wired.com/photos/5926e64caf95806129f50fde/master/pass/AnkiHP.jpg'
-                }
-                alt="project title"
-                className="h-full w-full object-cover cursor-pointer"
-              />
-            </div>
-          </div>
-
           <div
             className="flex justify-between items-center
           bg-gray-300 rounded-xl mt-5"
           >
             <input
               className="block w-full bg-transparent
-            border-0 text-sm text-slate-500 focus:outline-none
+            border-0 text-black text-slate-1000 focus:outline-none
             focus:ring-0"
               type="text"
-              name="title"
-              placeholder="Title"
-              onChange={(e) => setTitle(e.target.value)}
-              value={title}
+              name="prdname"
+              placeholder="Product Name"
+              onChange={(e) => setPrdname(e.target.value)}
+              value={prdname}
               required
             />
           </div>
@@ -106,15 +103,13 @@ const CreateProject = () => {
           >
             <input
               className="block w-full bg-transparent
-            border-0 text-sm text-slate-500 focus:outline-none
+            border-0 text-black text-slate-1000 focus:outline-none
             focus:ring-0"
               type="number"
-              step={0.01}
-              min={0.01}
-              name="cost"
-              placeholder="cost (ETH)"
-              onChange={(e) => setCost(e.target.value)}
-              value={cost}
+              name="quantity"
+              placeholder="Quantity"
+              onChange={(e) => setquantity(e.target.value)}
+              value={quantity}
               required
             />
           </div>
@@ -125,13 +120,13 @@ const CreateProject = () => {
           >
             <input
               className="block w-full bg-transparent
-            border-0 text-sm text-slate-500 focus:outline-none
+            border-0 text-black text-slate-1000 focus:outline-none
             focus:ring-0"
-              type="date"
-              name="date"
-              placeholder="Expires"
-              onChange={(e) => setDate(e.target.value)}
-              value={date}
+              type="text"
+              name="description"
+              placeholder="Product Description"
+              onChange={(e) => setdescription(e.target.value)}
+              value={description}
               required
             />
           </div>
@@ -157,17 +152,53 @@ const CreateProject = () => {
             className="flex justify-between items-center
           bg-gray-300 rounded-xl mt-5"
           >
-            <textarea
+            <input
               className="block w-full bg-transparent
-            border-0 text-sm text-slate-500 focus:outline-none
+            border-0 text-black text-slate-1000 focus:outline-none
+            focus:ring-0"
+              type="number"
+              step={0.01}
+              min={0.01}
+              name="cost"
+              placeholder="Price per Kg (DETH)"
+              onChange={(e) => setCost(e.target.value)}
+              value={cost}
+              required
+            />
+          </div>
+
+          <div
+            className="flex justify-between items-center
+          bg-gray-300 rounded-xl mt-5"
+          >
+            <input
+              className="block w-full bg-transparent
+            border-0 text-black text-slate-1000 focus:outline-none
             focus:ring-0"
               type="text"
-              name="description"
-              placeholder="Description"
-              onChange={(e) => setDescription(e.target.value)}
-              value={description}
+              name="loc"
+              placeholder="Location"
+              onChange={(e) => setLoc(e.target.value)}
+              value={loc}
               required
-            ></textarea>
+            />
+          </div>
+
+          <div
+            className="flex justify-between items-center
+          bg-gray-300 rounded-xl mt-5"
+          >
+            <input
+              className="block w-full bg-transparent
+            border-0 text-black text-slate-1000 focus:outline-none
+            focus:ring-0"
+              type="date"
+              name="date"
+              placeholder="Expires"
+              onChange={(e) => setExpiry(e.target.value)}
+              value={expiresAt}
+              required
+            />
           </div>
 
           <button
@@ -176,7 +207,7 @@ const CreateProject = () => {
             text-white font-medium text-md leading-tight
             rounded-full shadow-md hover:bg-green-700 mt-5"
           >
-            Submit Project
+            Create
           </button>
         </form>
       </div>

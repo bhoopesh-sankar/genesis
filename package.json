@@ -10,10 +10,12 @@
   },
   "dependencies": {
     "@cometchat-pro/chat": "^3.0.10",
+    "@emailjs/browser": "^3.10.0",
     "@nomiclabs/hardhat-ethers": "^2.1.0",
     "@nomiclabs/hardhat-waffle": "^2.0.3",
     "ethereum-waffle": "^3.4.4",
-    "ethers": "^5.6.9",
+    "ethers": "^5.7.2",
+    "firebase": "^9.17.1",
     "hardhat": "^2.10.1",
     "ipfs-http-client": "^57.0.3",
     "moment": "^2.29.4",
