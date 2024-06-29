@@ -41,7 +41,6 @@ const CreateProject = () => {
     await createProject(params)
     toast.success('Order created successfully, will reflect in 30sec.')
     onClose()
-    window.location.reload()
   }
 
   const onClose = () => {
